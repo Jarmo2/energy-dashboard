@@ -1,10 +1,22 @@
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+.pytest_cache/
 .venv/
+.env
+.env.local
 
-# Datenbank (wird lokal per ETL erzeugt)
+# Docker
+.dockerignore
+*.log
+docker-compose.log
+build/
+dist/
+
+# Datenbank
 energy.db
+*.db-journal
 
 # IDE
 .vscode/
@@ -13,3 +25,7 @@ energy.db
 # OS
 Thumbs.db
 .DS_Store
+
+# Test
+htmlcov/
+.coverage
