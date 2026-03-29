@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Über mich — Jarmo Kruse</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: #f4f5f7; color: #1a1a2e; line-height: 1.8; }
+        .nav { background: #1a1a2e; padding: 1rem 2rem; }
+        .nav a { color: #94a3b8; text-decoration: none; font-size: 0.85rem; margin-right: 1.5rem; }
+        .nav a:hover, .nav a.active { color: #fff; }
+
+        .hero {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 3rem 2rem 2.5rem;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .hero .subtitle {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            margin-top: 0.5rem;
+        }
+        .hero .links {
+            margin-top: 1.25rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .hero .links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.4rem 1rem;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .hero .links a:hover {
+            color: #fff;
+            border-color: #fff;
+        }
+
+        .content { max-width: 680px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+        .section {
+            margin-bottom: 2.5rem;
+        }
+        .section h2 {
+            font-size: 1.15rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            color: #1a1a2e;
+        }
+        .section p {
+            font-size: 0.95rem;
+            color: #334155;
+            margin-bottom: 0.75rem;
+        }
+
+        .skills {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .skill-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+        }
+        .skill-card h3 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.35rem;
+        }
+        .skill-card p {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .timeline {
+            border-left: 2px solid #e2e8f0;
+            padding-left: 1.5rem;
+            margin-top: 1rem;
+        }
+        .timeline-item {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .timeline-item::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: #1a1a2e;
+            border-radius: 50%;
+            position: absolute;
+            left: -1.85rem;
+            top: 0.45rem;
+        }
+        .timeline-item .time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .timeline-item h3 {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin: 0.15rem 0;
+        }
+        .timeline-item p {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .contact-bar {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+        .contact-bar p {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 0.75rem;
+        }
+        .contact-bar a {
+            color: #1a1a2e;
+            text-decoration: none;
+            font-weight: 500;
+            margin: 0 0.75rem;
+            font-size: 0.85rem;
+        }
+        .contact-bar a:hover { color: #0ea5e9; }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a href="/">Dashboard</a>
+    <a href="/about.html" class="active">Über mich</a>
+    <a href="/impressum.html">Impressum</a>
+    <a href="/datenschutz.html">Datenschutz</a>
+</div>
+
+<div class="hero">
+    <h1>Jarmo Kruse</h1>
+    <p class="subtitle">Data & Process Specialist · Energiewirtschaft · Python · ETL</p>
+    <div class="links">
+        <a href="https://github.com/Jarmo2" target="_blank">GitHub</a>
+        <a href="https://linkedin.com/in/jarmo-kruse" target="_blank">LinkedIn</a>
+        <a href="mailto:jarmo.kruse@tutanota.com">Kontakt</a>
+    </div>
+</div>
+
+<div class="content">
+    <div class="section">
+        <h2>Über mich</h2>
+        <p>
+            Ich komme aus der Wirtschaftsprüfung — sieben Jahre bei PwC in
+            Luxembourg und Hannover, davon die letzten Jahre an der
+            Schnittstelle zwischen Audit und IT. Dort habe ich gelernt, wie
+            Daten in Unternehmen wirklich aussehen: fragmentiert, historisch
+            gewachsen, und selten so sauber wie die Systeme versprechen.
+        </p>
+        <p>
+            Heute arbeite ich bei einem Energieversorger in Hannover. Mein
+            Fokus: die Rekonciliation von technischen Asset-Daten mit der
+            Anlagenbuchhaltung — über Fernwärme, Strom und Gas hinweg.
+            Das klingt trocken, ist aber eines der drängendsten Datenprobleme
+            der deutschen Energiewirtschaft.
+        </p>
+        <p>
+            Mein Werkzeugkasten: Python für ETL-Strecken und
+            Datenaufbereitung, SQL für alles was in Datenbanken lebt,
+            Power BI für Visualisierung, und FastAPI für Schnittstellen.
+            Ich denke in Datenmodellen, nicht in Tools.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Skills & Expertise</h2>
+        <div class="skills">
+            <div class="skill-card">
+                <h3>Datenmodellierung</h3>
+                <p>Strukturierte Modelle für Energieversorger — technische Assets und Anlagenbuchhaltung zusammenführen</p>
+            </div>
+            <div class="skill-card">
+                <h3>Python & ETL</h3>
+                <p>Pandas, Pydantic, FastAPI, pytest — produktive Pipelines, nicht nur Tutorials</p>
+            </div>
+            <div class="skill-card">
+                <h3>Business Intelligence</h3>
+                <p>Power BI, DAX, SAP Datasphere — KPI-Reporting und CSRD-Analyse</p>
+            </div>
+            <div class="skill-card">
+                <h3>Energiewirtschaft</h3>
+                <p>Fernwärme, Strom, Gas — regulatorische Anforderungen und Oracle-Migration</p>
+            </div>
+            <div class="skill-card">
+                <h3>Wirtschaftsprüfung</h3>
+                <p>7 Jahre IFRS, Konsolidierung, Konzernabschlüsse — ich verstehe die Finanzseite</p>
+            </div>
+            <div class="skill-card">
+                <h3>Docker & Deployment</h3>
+                <p>Containerisierung, CI/CD Grundlagen, API-Design und Dokumentation</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Beruflicher Werdegang</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <span class="time">Seit Juni 2025</span>
+                <h3>Process & Data Accounting Specialist</h3>
+                <p>Energieversorger, Hannover — Datenrekonciliation, KI-Anwendungen, Python</p>
+            </div>
+            <div class="timeline-item">
+                <span class="time">2021 – 2025</span>
+                <h3>Manager Assurance Digital</h3>
+                <p>PwC Deutschland, Hannover — CO₂-Dashboard, ETL-Pipelines, Power BI, SAP</p>
+            </div>
+            <div class="timeline-item">
+                <span class="time">2020 – 2021</span>
+                <h3>Sabbatical</h3>
+                <p>Python, Data Science, SQL & Data Engineering — Autodidakt</p>
+            </div>
+            <div class="timeline-item">
+                <span class="time">2013 – 2020</span>
+                <h3>Audit Associate bis Manager</h3>
+                <p>PwC Luxembourg — IFRS, Konsolidierung, Teams bis 5 Personen</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Projekt: Hannover Energy Dashboard</h2>
+        <p>
+            Öffentliche Strommarktdaten der Bundesnetzagentur (SMARD.de),
+            aufbereitet über eine Python-ETL-Pipeline und bereitgestellt
+            als REST-API mit interaktivem Dashboard.
+        </p>
+        <p>
+            Tech-Stack: Python, pandas, Pydantic, FastAPI, SQLite,
+            Docker, Chart.js.
+            <a href="https://github.com/Jarmo2/energy-dashboard" target="_blank"
+               style="color: #0ea5e9;">→ Repo auf GitHub</a>
+        </p>
+    </div>
+
+    <div class="contact-bar">
+        <p>Interesse an Zusammenarbeit oder fachlichem Austausch?</p>
+        <a href="mailto:jarmo.kruse@tutanota.com">E-Mail</a>
+        <a href="https://github.com/Jarmo2" target="_blank">GitHub</a>
+        <a href="https://linkedin.com/in/jarmo-kruse" target="_blank">LinkedIn</a>
+    </div>
+</div>
+
+<div class="footer">
+    <a href="/impressum.html" style="color: #94a3b8;">Impressum</a> ·
+    <a href="/datenschutz.html" style="color: #94a3b8;">Datenschutz</a>
+</div>
+</body>
+</html>

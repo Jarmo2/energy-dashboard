@@ -1,0 +1,15 @@
+# docker compose up --build    (starten)
+# docker compose down          (stoppen)
+# docker compose logs -f       (Logs verfolgen)
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - db-data:/app
+    restart: unless-stopped
+
+volumes:
+  db-data:

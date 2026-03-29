@@ -18,6 +18,8 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 DB_PATH = Path("energy.db")
@@ -107,8 +109,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
 
-# --- Endpunkte ---
+
+# --- API-Endpunkte ---
 
 
 @app.get("/energy-mix", response_model=EnergyMixResponse)
@@ -157,7 +166,6 @@ def get_energy_mix(
             for row in rows
         ]
 
-        # Zeitraum bestimmen
         time_range = conn.execute(
             "SELECT MIN(timestamp_utc) as start, MAX(timestamp_utc) as end "
             "FROM energy_generation WHERE timestamp_ms >= ?",
@@ -196,7 +204,6 @@ def get_timeseries(
             (datetime.now(timezone.utc) - timedelta(days=days)).timestamp() * 1000
         )
 
-        # Prüfen ob der Filter existiert
         available = conn.execute(
             "SELECT DISTINCT filter_name FROM energy_generation"
         ).fetchall()
@@ -250,7 +257,6 @@ def get_summary(
             (datetime.now(timezone.utc) - timedelta(days=days)).timestamp() * 1000
         )
 
-        # Top-Erzeuger
         rows = conn.execute(
             """
             SELECT filter_name, is_renewable,
@@ -270,7 +276,6 @@ def get_summary(
                 detail=f"Keine Daten für die letzten {days} Tage.",
             )
 
-        # Gesamtwerte
         totals = conn.execute(
             """
             SELECT
@@ -335,3 +340,27 @@ def get_available_filters():
         ]
     finally:
         conn.close()
+
+
+# --- Statische Seiten ---
+
+
+@app.get("/", include_in_schema=False)
+def serve_dashboard():
+    """Dashboard Frontend ausliefern."""
+    return FileResponse("static/index.html")
+
+
+@app.get("/about.html", include_in_schema=False)
+def serve_about():
+    return FileResponse("static/about.html")
+
+
+@app.get("/impressum.html", include_in_schema=False)
+def serve_impressum():
+    return FileResponse("static/impressum.html")
+
+
+@app.get("/datenschutz.html", include_in_schema=False)
+def serve_datenschutz():
+    return FileResponse("static/datenschutz.html")

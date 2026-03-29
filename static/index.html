@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hannover Energy Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: #f4f5f7; color: #1a1a2e; line-height: 1.6; }
+        .nav { background: #1a1a2e; padding: 1rem 2rem; }
+        .nav a { color: #94a3b8; text-decoration: none; font-size: 0.85rem; margin-right: 1.5rem; }
+        .nav a:hover, .nav a.active { color: #fff; }
+        .header { background: #1a1a2e; color: #fff; padding: 0 2rem 1.5rem; }
+        .header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+        .header p { font-size: 0.85rem; color: #94a3b8; margin-top: 0.25rem; }
+        .controls { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        .controls button { font-family: 'DM Sans', sans-serif; padding: 0.4rem 1rem; border: 1px solid #334155; border-radius: 6px; background: transparent; color: #94a3b8; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+        .controls button.active, .controls button:hover { background: #fff; color: #1a1a2e; border-color: #fff; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+        .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .metric-card { background: #fff; border-radius: 12px; padding: 1.25rem; border: 1px solid #e2e8f0; }
+        .metric-card .label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+        .metric-card .value { font-size: 1.75rem; font-weight: 700; margin-top: 0.25rem; }
+        .metric-card .sub { font-size: 0.8rem; color: #64748b; margin-top: 0.15rem; }
+        .renewable { color: #059669; }
+        .conventional { color: #dc2626; }
+        .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        @media (max-width: 768px) { .charts { grid-template-columns: 1fr; } }
+        .chart-card { background: #fff; border-radius: 12px; padding: 1.5rem; border: 1px solid #e2e8f0; }
+        .chart-card h2 { font-size: 0.95rem; font-weight: 500; margin-bottom: 1rem; color: #334155; }
+        .chart-wrap { position: relative; height: 280px; }
+        .full-width { grid-column: 1 / -1; }
+        .full-width .chart-wrap { height: 320px; }
+        .footer { text-align: center; padding: 2rem; font-size: 0.75rem; color: #94a3b8; }
+        .footer a { color: #64748b; }
+        .error { background: #fef2f2; color: #dc2626; padding: 1rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+
+<div class="nav">
+    <a href="/" class="active">Dashboard</a>
+    <a href="/about.html">Über mich</a>
+    <a href="/impressum.html">Impressum</a>
+    <a href="/datenschutz.html">Datenschutz</a>
+</div>
+
+<div class="header">
+    <h1>Hannover Energy Dashboard</h1>
+    <p>Stromerzeugung in Deutschland — Daten: Bundesnetzagentur | SMARD.de</p>
+    <div class="controls">
+        <button class="active" onclick="setDays(7)">7 Tage</button>
+        <button onclick="setDays(14)">14 Tage</button>
+        <button onclick="setDays(30)">30 Tage</button>
+    </div>
+</div>
+
+<div class="container">
+    <div id="error-box"></div>
+    <div class="metrics">
+        <div class="metric-card"><div class="label">Gesamterzeugung</div><div class="value" id="m-total">—</div><div class="sub" id="m-period">Lade Daten...</div></div>
+        <div class="metric-card"><div class="label">Erneuerbare</div><div class="value renewable" id="m-renewable">—</div><div class="sub">Anteil an Gesamterzeugung</div></div>
+        <div class="metric-card"><div class="label">Konventionelle</div><div class="value conventional" id="m-conventional">—</div><div class="sub">Anteil an Gesamterzeugung</div></div>
+        <div class="metric-card"><div class="label">Top-Erzeuger</div><div class="value" id="m-top" style="font-size:1.1rem">—</div><div class="sub" id="m-top-mwh">—</div></div>
+    </div>
+    <div class="charts">
+        <div class="chart-card"><h2>Energiemix</h2><div class="chart-wrap"><canvas id="chart-mix"></canvas></div></div>
+        <div class="chart-card"><h2>Erneuerbar vs. konventionell</h2><div class="chart-wrap"><canvas id="chart-split"></canvas></div></div>
+        <div class="chart-card full-width"><h2>Wind Onshore — Stündliche Erzeugung</h2><div class="chart-wrap"><canvas id="chart-timeseries"></canvas></div></div>
+    </div>
+</div>
+
+<div class="footer">
+    Datenquelle: <a href="https://smard.de" target="_blank">Bundesnetzagentur | SMARD.de</a> (CC BY 4.0) · Erstellt von Jarmo Kruse
+</div>
+
+<script>
+const API = 'http://localhost:8000';
+let currentDays = 7;
+let chartMix = null, chartSplit = null, chartTS = null;
+
+const COLORS = {
+    'Wind Onshore': '#0ea5e9', 'Wind Offshore': '#0284c7', 'Photovoltaik': '#f59e0b',
+    'Biomasse': '#22c55e', 'Wasserkraft': '#06b6d4', 'Sonstige Erneuerbare': '#84cc16',
+    'Erdgas': '#ef4444', 'Steinkohle': '#78716c', 'Braunkohle': '#57534e',
+    'Kernenergie': '#a855f7', 'Pumpspeicher': '#6366f1', 'Sonstige Konventionelle': '#9ca3af',
+};
+
+function getColor(name) { return COLORS[name] || '#94a3b8'; }
+
+function formatMWh(value) {
+    if (value >= 1_000_000) return (value / 1_000_000).toFixed(1) + ' TWh';
+    if (value >= 1_000) return (value / 1_000).toFixed(0) + ' GWh';
+    return value.toFixed(0) + ' MWh';
+}
+
+function showError(msg) { document.getElementById('error-box').innerHTML = `<div class="error">${msg}</div>`; }
+function clearError() { document.getElementById('error-box').innerHTML = ''; }
+
+async function fetchJSON(endpoint) {
+    const res = await fetch(`${API}${endpoint}`);
+    if (!res.ok) throw new Error(`API Fehler: ${res.status}`);
+    return res.json();
+}
+
+async function loadDashboard(days) {
+    clearError();
+    try {
+        const [summary, mix, timeseries] = await Promise.all([
+            fetchJSON(`/summary?days=${days}`),
+            fetchJSON(`/energy-mix?days=${days}`),
+            fetchJSON(`/timeseries?filter_name=Wind Onshore&days=${days}`),
+        ]);
+
+        document.getElementById('m-total').textContent = formatMWh(summary.total_generation_mwh);
+        document.getElementById('m-renewable').textContent = summary.renewable_share_percent + '%';
+        document.getElementById('m-conventional').textContent = summary.conventional_share_percent + '%';
+        document.getElementById('m-period').textContent = `${summary.period_start.slice(0,10)} bis ${summary.period_end.slice(0,10)}`;
+
+        if (summary.top_producers.length > 0) {
+            document.getElementById('m-top').textContent = summary.top_producers[0].name;
+            document.getElementById('m-top-mwh').textContent = formatMWh(summary.top_producers[0].total_mwh);
+        }
+
+        if (chartMix) chartMix.destroy();
+        chartMix = new Chart(document.getElementById('chart-mix'), {
+            type: 'doughnut',
+            data: { labels: mix.mix.map(e => e.filter_name), datasets: [{ data: mix.mix.map(e => e.total_mwh), backgroundColor: mix.mix.map(e => getColor(e.filter_name)), borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { position: 'right', labels: { font: { family: 'DM Sans', size: 11 }, padding: 8, usePointStyle: true, pointStyleWidth: 8 } }, tooltip: { callbacks: { label: ctx => `${ctx.label}: ${formatMWh(ctx.raw)} (${mix.mix[ctx.dataIndex].share_percent}%)` } } } }
+        });
+
+        const renewTotal = mix.mix.filter(e => e.is_renewable).reduce((s, e) => s + e.total_mwh, 0);
+        const convTotal = mix.mix.filter(e => !e.is_renewable).reduce((s, e) => s + e.total_mwh, 0);
+
+        if (chartSplit) chartSplit.destroy();
+        chartSplit = new Chart(document.getElementById('chart-split'), {
+            type: 'bar',
+            data: { labels: ['Erneuerbare', 'Konventionelle'], datasets: [{ data: [renewTotal, convTotal], backgroundColor: ['#059669', '#dc2626'], borderRadius: 6, barPercentage: 0.5 }] },
+            options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => formatMWh(ctx.raw) } } }, scales: { x: { ticks: { callback: v => formatMWh(v), font: { family: 'DM Sans', size: 11 } }, grid: { color: '#f1f5f9' } }, y: { ticks: { font: { family: 'DM Sans', size: 12 } }, grid: { display: false } } } }
+        });
+
+        const tsData = timeseries.data.filter(p => p.value_mwh !== null);
+        const labels = tsData.map(p => { const d = new Date(p.timestamp_utc); return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) + ' ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }); });
+
+        if (chartTS) chartTS.destroy();
+        chartTS = new Chart(document.getElementById('chart-timeseries'), {
+            type: 'line',
+            data: { labels, datasets: [{ label: 'Wind Onshore (MWh)', data: tsData.map(p => p.value_mwh), borderColor: '#0ea5e9', backgroundColor: 'rgba(14, 165, 233, 0.08)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 }] },
+            options: { responsive: true, maintainAspectRatio: false, interaction: { intersect: false, mode: 'index' }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${Math.round(ctx.raw).toLocaleString('de-DE')} MWh` } } }, scales: { x: { ticks: { maxTicksLimit: 12, font: { family: 'DM Sans', size: 10 }, maxRotation: 0 }, grid: { display: false } }, y: { ticks: { callback: v => formatMWh(v), font: { family: 'DM Sans', size: 11 } }, grid: { color: '#f1f5f9' } } } }
+        });
+    } catch (err) {
+        showError(`Verbindung zur API fehlgeschlagen. Stelle sicher, dass die API läuft: <code>uvicorn api:app --reload --port 8000</code><br><br>Fehler: ${err.message}`);
+    }
+}
+
+function setDays(days) {
+    currentDays = days;
+    document.querySelectorAll('.controls button').forEach(btn => btn.classList.toggle('active', btn.textContent.includes(days)));
+    loadDashboard(days);
+}
+
+loadDashboard(currentDays);
+</script>
+</body>
+</html>
