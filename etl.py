@@ -21,11 +21,12 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
                     datefmt="%Y-%m-%d %H:%M:%S")
 logger = logging.getLogger(__name__)
 
-DEFAULT_DB_PATH = Path("energy.db")
+DEFAULT_DB_PATH = Path("data/energy.db")
 API_DELAY_SECONDS = 0.5
 
 
 def init_db(db_path: Path) -> sqlite3.Connection:
+    db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(db_path))
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS energy_generation (

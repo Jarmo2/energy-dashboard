@@ -7,8 +7,10 @@ services:
     build: .
     ports:
       - "8000:8000"
+    environment:
+      - ALLOWED_ORIGINS=https://jarmok.de,http://jarmok.de,http://localhost:8000
     volumes:
-      - db-data:/app
+      - db-data:/app/data
     restart: unless-stopped
 
 volumes:

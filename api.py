@@ -11,18 +11,23 @@ Dokumentation:
 Datenquelle: Bundesnetzagentur | SMARD.de (CC BY 4.0)
 """
 
+import os
 import sqlite3
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
+from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-DB_PATH = Path("energy.db")
+from etl import run_etl
+
+DB_PATH = Path("data/energy.db")
+_allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 
 
 # --- Pydantic Models für die API-Antworten ---
@@ -95,10 +100,12 @@ def get_db() -> sqlite3.Connection:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Prüft beim Start, ob die Datenbank existiert."""
-    if not DB_PATH.exists():
-        print(f"WARNUNG: {DB_PATH} nicht gefunden. Bitte 'python etl.py' ausführen.")
+    run_etl()
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(run_etl, "interval", hours=24)
+    scheduler.start()
     yield
+    scheduler.shutdown()
 
 
 app = FastAPI(
@@ -111,7 +118,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_allowed_origins,
     allow_methods=["GET"],
     allow_headers=["*"],
 )

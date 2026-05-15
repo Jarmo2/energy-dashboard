@@ -61,7 +61,7 @@ docker compose up --build
 ├── docker-compose.yml    # Lokale Entwicklung mit Docker
 ├── entrypoint.sh         # Container-Startscript
 ├── requirements.txt      # Python-Abhängigkeiten
-└── energy.db             # SQLite (wird per ETL erzeugt, nicht im Repo)
+└── data/energy.db        # SQLite (wird per ETL erzeugt, nicht im Repo)
 ```
 
 ## Tech Stack
